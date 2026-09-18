@@ -1,5 +1,5 @@
 {
-  "name": "pcompiler Dev",
+  "name": "botui Dev",
   "build": {
     "dockerfile": "./Dockerfile",
     "context": "../"
