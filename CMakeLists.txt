@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.10)
 project(botui)
 
 option(wombat "Use the Wombat controller" ON)
@@ -7,7 +8,6 @@ option(docker_cross "Cross compile option for docker container" OFF)
 set(KIPR_VERSION_MAJOR 1)
 set(KIPR_VERSION_MINOR 2)
 set(KIPR_VERSION_PATCH 5)
-cmake_minimum_required(VERSION 2.8.11)
 
 #if (wallaby)
  # add_definitions(-DWALLABY)
@@ -62,8 +62,6 @@ include_directories(
 
   
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Quick QuickWidgets QuickControls2)
- 
-
 
 find_package(OpenSSL REQUIRED)
 
@@ -144,4 +142,20 @@ set(CPACK_PACKAGE_VERSION_PATCH ${KIPR_VERSION_PATCH})
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE arm64)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "KISS Institute for Practical Robotics")
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+#set (CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6quick6, libqt6core6t64, libqt6dbus6, libqt6network6, libqt6qml6, libqt6gui6, libqt6widgets6, libqt6quickwidgets6, libssl3t64, kipr, pcompiler, libkar, libc6, libgcc-s1, libstdc++6")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+
+set(CPACK_DEBIAN_PACKAGE_DEPENDS
+    "pcompiler"
+    "kipr"
+    # Add QML/plugin packages that are dynamically loaded at runtime.
+)
 include(CPack)
+
+add_custom_target(package-debian
+	COMMAND "${CMAKE_CPACK_COMMAND}"
+	WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+	DEPENDS botui
+	COMMENT "Building Debian package with CPack"
+	VERBATIM
+)
