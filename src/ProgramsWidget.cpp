@@ -198,8 +198,8 @@ void ProgramsWidget::edit()
 
 void ProgramsWidget::add()
 {
-	KeyboardDialog keyboard(tr("Program Name"));
-	if (RootController::ref().presentDialog(&keyboard) != QDialog::Accepted)
+	KeyboardDialog keyboard(tr("Program Name"), KeyboardDialog::Normal, this);
+	if (RootController::ref().presentInput(&keyboard) != InputProviderWidget::Accepted)
 		return;
 	const QString name = keyboard.input();
 	if (name.isEmpty())

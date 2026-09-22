@@ -130,6 +130,40 @@ ENDIF()
 
 target_link_libraries(botui ${QT_LIBRARIES})
 
+include(CTest)
+if(BUILD_TESTING)
+	find_package(Qt6 REQUIRED COMPONENTS Test)
+	qt6_wrap_cpp(BOTUI_UI_TEST_MOCS
+		include/botui/RootController.h
+		include/botui/RootWindow.h
+		include/botui/InputProviderWidget.h
+		include/botui/DeclarativeView.h
+	)
+	add_executable(botui-ui-tests
+		tests/RootWindowTest.cpp
+		src/RootController.cpp
+		src/RootWindow.cpp
+		src/InputProviderWidget.cpp
+		src/DeclarativeView.cpp
+		include/botui/RootController.h
+		include/botui/RootWindow.h
+		include/botui/InputProviderWidget.h
+		include/botui/DeclarativeView.h
+		${BOTUI_UI_TEST_MOCS}
+	)
+	target_include_directories(botui-ui-tests PRIVATE ${INCLUDE})
+	target_link_libraries(botui-ui-tests PRIVATE
+		Qt6::Core
+		Qt6::Gui
+		Qt6::Widgets
+		Qt6::Quick
+		Qt6::QuickWidgets
+		Qt6::Test
+	)
+	add_test(NAME botui-ui-tests COMMAND botui-ui-tests)
+	set_tests_properties(botui-ui-tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+endif()
+
 
 install(TARGETS botui DESTINATION bin)
 install(FILES ${QM_FILES} DESTINATION "/etc/botui/locale")
