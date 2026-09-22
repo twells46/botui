@@ -61,7 +61,7 @@ include_directories(
 
 
   
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Quick QuickWidgets QuickControls2)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Quick QuickWidgets QuickControls2 Xml)
 
 find_package(OpenSSL REQUIRED)
 
@@ -118,6 +118,7 @@ target_link_libraries(botui
 	Qt6::QuickWidgets
 	Qt6::Widgets
 	Qt6::QuickControls2
+	Qt6::Xml
 	network_manager_dbus
 	pcompiler
 	z
@@ -133,6 +134,7 @@ target_link_libraries(botui ${QT_LIBRARIES})
 include(CTest)
 if(BUILD_TESTING)
 	find_package(Qt6 REQUIRED COMPONENTS Test)
+	qt6_add_resources(BOTUI_UI_TEST_RESOURCES ${RC}/target.qrc)
 	qt6_wrap_cpp(BOTUI_UI_TEST_MOCS
 		include/botui/RootController.h
 		include/botui/RootWindow.h
@@ -141,14 +143,19 @@ if(BUILD_TESTING)
 	)
 	add_executable(botui-ui-tests
 		tests/RootWindowTest.cpp
+		src/Calibrate.cpp
 		src/RootController.cpp
 		src/RootWindow.cpp
 		src/InputProviderWidget.cpp
 		src/DeclarativeView.cpp
+		src/TouchCalibration.cpp
+		include/botui/Calibrate.h
 		include/botui/RootController.h
 		include/botui/RootWindow.h
 		include/botui/InputProviderWidget.h
 		include/botui/DeclarativeView.h
+		include/botui/TouchCalibration.h
+		${BOTUI_UI_TEST_RESOURCES}
 		${BOTUI_UI_TEST_MOCS}
 	)
 	target_include_directories(botui-ui-tests PRIVATE ${INCLUDE})
@@ -158,10 +165,24 @@ if(BUILD_TESTING)
 		Qt6::Widgets
 		Qt6::Quick
 		Qt6::QuickWidgets
+		Qt6::Xml
 		Qt6::Test
 	)
 	add_test(NAME botui-ui-tests COMMAND botui-ui-tests)
 	set_tests_properties(botui-ui-tests PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
+
+	add_executable(botui-calibration-tests
+		tests/TouchCalibrationTest.cpp
+		src/TouchCalibration.cpp
+		include/botui/TouchCalibration.h
+	)
+	target_include_directories(botui-calibration-tests PRIVATE ${INCLUDE})
+	target_link_libraries(botui-calibration-tests PRIVATE
+		Qt6::Core
+		Qt6::Xml
+		Qt6::Test
+	)
+	add_test(NAME botui-calibration-tests COMMAND botui-calibration-tests)
 endif()
 
 
@@ -182,6 +203,7 @@ set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
     "pcompiler"
     "kipr"
+	"qt6-wayland"
     # Add QML/plugin packages that are dynamically loaded at runtime.
 )
 include(CPack)

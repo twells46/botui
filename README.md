@@ -46,6 +46,19 @@ make -j4
 sudo make install
 ```
 
+## Touchscreen calibration on Wayland
+
+Botui's calibration page updates the Labwc configuration at
+`~/.config/labwc/rc.xml`. It calibrates the `TSC2007 Touchscreen` profile while
+leaving Labwc's output mapping and mouse-emulation settings unchanged.
+
+After five calibration taps, Botui saves the original configuration as
+`~/.config/labwc/rc.xml.bak`, writes the candidate matrix, and runs
+`labwc --reconfigure`. The new calibration must be confirmed by touching the
+displayed target within 15 seconds. If it is not confirmed, Botui restores the
+backup and reloads Labwc. The rollback timer runs inside Botui, so the backup
+may need to be restored manually if Botui exits during confirmation.
+
 # License
 
 Botui is released under the terms of the GPLv3. For more information, see the LICENSE file.

@@ -1,3 +1,4 @@
+#include "Calibrate.h"
 #include "InputProviderWidget.h"
 #include "RootController.h"
 #include "RootWindow.h"
@@ -5,10 +6,15 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QCoreApplication>
+#include <QDir>
 #include <QEvent>
+#include <QFile>
 #include <QHideEvent>
+#include <QImage>
 #include <QPointer>
+#include <QPushButton>
 #include <QStackedWidget>
+#include <QTemporaryDir>
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QtTest>
@@ -63,6 +69,8 @@ private slots:
 	void pageSizeHintsCannotResizeShell();
 	void inputProviderUsesChildOverlay();
 	void activeInputRejectsNavigationAndNesting();
+	void calibrationUsesPersistentWindowAndDefersWrites();
+	void calibrationArtworkLoads();
 };
 
 void RootWindowTest::navigationUsesOnePersistentWindow()
@@ -236,6 +244,81 @@ void RootWindowTest::activeInputRejectsNavigationAndNesting()
 	QCOMPARE(controller.depth(), 1U);
 	QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
 	QVERIFY(refusedPage.isNull());
+}
+
+void RootWindowTest::calibrationUsesPersistentWindowAndDefersWrites()
+{
+	QTemporaryDir directory;
+	QVERIFY(directory.isValid());
+	const QByteArray originalHome = qgetenv("HOME");
+	QVERIFY(qputenv("HOME", directory.path().toLocal8Bit()));
+	QDir configDirectory(directory.filePath(QStringLiteral(".config/labwc")));
+	QVERIFY(configDirectory.mkpath(QStringLiteral(".")));
+	const QString configPath = configDirectory.filePath(QStringLiteral("rc.xml"));
+	const QByteArray original =
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+		"<openbox_config xmlns=\"http://openbox.org/3.4/rc\">"
+		"<libinput><device category=\"TSC2007 Touchscreen\">"
+		"<calibrationMatrix>1 0 0 0 1 0</calibrationMatrix>"
+		"</device></libinput></openbox_config>\n";
+	QFile config(configPath);
+	QVERIFY(config.open(QIODevice::WriteOnly));
+	QCOMPARE(config.write(original), original.size());
+	config.close();
+
+	RootController &controller = RootController::ref();
+	ObservedRootWindow window;
+	window.resize(800, 480);
+	QWidget *home = new QWidget;
+	controller.initialize(&window, home);
+	window.show();
+	QCoreApplication::processEvents();
+	const WId shellId = window.winId();
+	const int topLevelCount = QApplication::topLevelWidgets().size();
+
+	Calibrate::calibrate();
+	QCoreApplication::processEvents();
+	QWidget *calibrationPage = controller.currentWidget();
+	QVERIFY(calibrationPage != home);
+	QCOMPARE(calibrationPage->objectName(), QStringLiteral("calibrationPage"));
+	QCOMPARE(window.winId(), shellId);
+	QCOMPARE(QApplication::topLevelWidgets().size(), topLevelCount);
+	QCOMPARE(controller.depth(), 2U);
+	const QImage calibrationImage = calibrationPage->grab().toImage();
+	int artworkPixelCount = 0;
+	for (int y = 0; y < 120; ++y) {
+		for (int x = 40; x < 155; ++x) {
+			const QColor pixel = calibrationImage.pixelColor(x, y);
+			if (pixel.red() < 80 && pixel.green() < 80 && pixel.blue() < 80)
+				++artworkPixelCount;
+		}
+	}
+	QVERIFY2(artworkPixelCount > 100, "The raccoon artwork was not painted below the first crosshair");
+	QFile unchangedConfig(configPath);
+	QVERIFY(unchangedConfig.open(QIODevice::ReadOnly));
+	QCOMPARE(unchangedConfig.readAll(), original);
+	unchangedConfig.close();
+	QVERIFY(!QFile::exists(configPath + QStringLiteral(".bak")));
+
+	QPushButton *cancel = calibrationPage->findChild<QPushButton *>(
+		QStringLiteral("calibrationActionButton"));
+	QVERIFY(cancel);
+	QTest::mouseClick(cancel, Qt::LeftButton);
+	QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+	QCOMPARE(controller.currentWidget(), home);
+	QCOMPARE(controller.depth(), 1U);
+	QCOMPARE(QApplication::topLevelWidgets().size(), topLevelCount);
+	QVERIFY(!QFile::exists(configPath + QStringLiteral(".bak")));
+	QVERIFY(qputenv("HOME", originalHome));
+}
+
+void RootWindowTest::calibrationArtworkLoads()
+{
+	QImage raccoon(QStringLiteral(":/raccoon.png"));
+	QVERIFY2(!raccoon.isNull(), "Qt could not decode the embedded raccoon artwork");
+	QVERIFY(raccoon.width() > 0);
+	QVERIFY(raccoon.height() > 0);
+	QCOMPARE(raccoon.pixelColor(0, 0).alpha(), 0);
 }
 
 QTEST_MAIN(RootWindowTest)
