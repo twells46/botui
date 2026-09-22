@@ -36,12 +36,10 @@ ProgramSelectionWidget::~ProgramSelectionWidget()
 
 void ProgramSelectionWidget::runningProgram()
 {
-	RootController::ref().dismissWidget(); // Dismiss ourself
-	RootController::ref().presentWidget(new ProgramWidget(Program::instance(), m_device));
+	RootController::ref().replaceWidget(new ProgramWidget(Program::instance(), m_device));
 }
 
 void ProgramSelectionWidget::otherPrograms()
 {
-	RootController::ref().dismissWidget(); // Dismiss ourself
-	RootController::ref().presentWidget(new ProgramsWidget(m_device));
+	RootController::ref().replaceWidget(new ProgramsWidget(m_device));
 }
