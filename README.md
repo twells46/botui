@@ -1,6 +1,6 @@
 # botui
 
-Botui is a device-independent graphical interface designed initially for the Kovan controller.
+Botui is a graphical interface for KIPR robots, including the Wombat controller.
 
 The icons used throughout botui are from the [Font Awesome](https://fontawesome.com/icons?d=gallery) by © Fonticons, Inc.
 

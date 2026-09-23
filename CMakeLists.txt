@@ -9,15 +9,6 @@ set(KIPR_VERSION_MAJOR 2)
 set(KIPR_VERSION_MINOR 0)
 set(KIPR_VERSION_PATCH 1)
 
-#if (wallaby)
- # add_definitions(-DWALLABY)
-  #set(DEVICE_DIR ${CMAKE_SOURCE_DIR}/devices/wallaby)
-  #find_package(OpenCV REQUIRED)
-#else()
- # set(DEVICE_DIR ${CMAKE_SOURCE_DIR}/devices/kovan)
-  
-#endif()
-
 set(LIBKAR_ROOT ${CMAKE_SOURCE_DIR}/../libkar)
 set(PCOMPILER_ROOT ${CMAKE_SOURCE_DIR}/../pcompiler)
 set(LIBKIPR_ROOT ${CMAKE_SOURCE_DIR}/../libwallaby)

@@ -11,7 +11,6 @@
 #include "GuiSettingsWidget.h"
 #include "ScreenInversion.h"
 #include "TestWizard.h"
-#include "KovanSerialBridge.h"
 #include "CursorManager.h"
 #include "NetworkSettingsWidget.h"
 #include <QApplication>
@@ -88,7 +87,6 @@ int main(int argc, char* argv[])
 	RootWindow rootWindow;
 	RootController::ref().initialize(&rootWindow, new HomeWidget(&device));
 #ifdef QT_DBUS_LIB
-  KovanSerialBridge::ref().init(&device);
   NetworkManager::ref().init(&device);
 #endif
 
