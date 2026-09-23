@@ -119,49 +119,6 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>BatterySettingsWidget</name>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="14"/>
-        <source>Battery Settings</source>
-        <translation>电池设置</translation>
-    </message>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="34"/>
-        <source>Battery type:</source>
-        <translation>电池类型:</translation>
-    </message>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="42"/>
-        <source>LiFe</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="47"/>
-        <source>LiPo</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="52"/>
-        <source>NiMH</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="64"/>
-        <source>Enable low battery warning:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="ui/BatterySettingsWidget.ui" line="78"/>
-        <source>at percent:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="src/BatterySettingsWidget.cpp" line="20"/>
-        <source>Battery Settings Widget</source>
-        <translation>电池设置对话框</translation>
-    </message>
-</context>
-<context>
     <name>CameraInputSelectorWidget</name>
     <message>
         <location filename="ui/CameraInputSelectorWidget.ui" line="20"/>
@@ -2298,11 +2255,6 @@ p, li { white-space: pre-wrap; }
         <location filename="ui/SettingsWidget.ui" line="138"/>
         <source>Update</source>
         <translation>更新</translation>
-    </message>
-    <message>
-        <location filename="ui/SettingsWidget.ui" line="149"/>
-        <source>Battery</source>
-        <translation>电池</translation>
     </message>
 </context>
 <context>

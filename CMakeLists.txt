@@ -7,7 +7,7 @@ option(RELEASE "Enable release mode" OFF)
 option(docker_cross "Cross compile option for docker container" OFF)
 set(KIPR_VERSION_MAJOR 2)
 set(KIPR_VERSION_MINOR 0)
-set(KIPR_VERSION_PATCH 0)
+set(KIPR_VERSION_PATCH 1)
 
 #if (wallaby)
  # add_definitions(-DWALLABY)
@@ -206,6 +206,7 @@ endif()
 
 install(TARGETS botui DESTINATION bin)
 install(FILES ${QM_FILES} DESTINATION "/etc/botui/locale")
+install(FILES botui.desktop DESTINATION share/applications)
 
 set(CPACK_PACKAGE_NAME botui)
 set(CPACK_GENERATOR "DEB")
