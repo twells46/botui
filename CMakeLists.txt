@@ -183,6 +183,24 @@ if(BUILD_TESTING)
 		Qt6::Test
 	)
 	add_test(NAME botui-calibration-tests COMMAND botui-calibration-tests)
+
+	add_executable(botui-orientation-tests
+		tests/ScreenOrientationTest.cpp
+		src/ScreenOrientation.cpp
+		include/botui/ScreenOrientation.h
+	)
+	target_include_directories(botui-orientation-tests PRIVATE ${INCLUDE})
+	target_link_libraries(botui-orientation-tests PRIVATE Qt6::Core Qt6::Test)
+	add_test(NAME botui-orientation-tests COMMAND botui-orientation-tests)
+
+	add_executable(botui-kanshi-process-tests
+		tests/KanshiProcessTest.cpp
+		src/KanshiProcess.cpp
+		include/botui/KanshiProcess.h
+	)
+	target_include_directories(botui-kanshi-process-tests PRIVATE ${INCLUDE})
+	target_link_libraries(botui-kanshi-process-tests PRIVATE Qt6::Core Qt6::Test)
+	add_test(NAME botui-kanshi-process-tests COMMAND botui-kanshi-process-tests)
 endif()
 
 
@@ -204,6 +222,7 @@ set(CPACK_DEBIAN_PACKAGE_DEPENDS
     "pcompiler"
     "kipr"
 	"qt6-wayland"
+	"wlr-randr"
     # Add QML/plugin packages that are dynamically loaded at runtime.
 )
 include(CPack)

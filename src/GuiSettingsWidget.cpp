@@ -5,10 +5,11 @@
 #include "MechanicalStyle.h"
 #include "Device.h"
 #include "RootController.h"
+#include "ScreenInversion.h"
+#include "ScreenOrientation.h"
 
 #include <QApplication>
-#include <QProcess>
-#include <QMessageBox>
+#include <QShowEvent>
 
 const static QColor guiColors[] = {
     QColor(50, 50, 50),    // Black
@@ -71,17 +72,17 @@ void GuiSettingsWidget::colorChanged(int index)
 
 void GuiSettingsWidget::on_invert_screen_clicked()
 {
-    if (QMessageBox::question(this, "Invert Screen?",
-                              QString("Are you sure you want to invert the screen? \n (requires reboot)"),
-                              QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
-    {
-        return;
-    }
-    else
-    {
-        QProcess process;
-        process.startDetached("/bin/sh", QStringList() << "/home/kipr/wombat-os/configFiles/screen_settings/find.sh");
-    }
+	ScreenInversion::showPage();
+}
+
+void GuiSettingsWidget::showEvent(QShowEvent *event)
+{
+	StandardWidget::showEvent(event);
+	ScreenOrientationStore store;
+	bool inverted = false;
+	QString error;
+	if (store.load(&inverted, &error))
+		ui->invert_screen->setText(inverted ? tr("Restore Screen") : tr("Invert Screen"));
 }
 
 void GuiSettingsWidget::updateWidgets()

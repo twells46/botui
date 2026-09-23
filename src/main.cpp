@@ -9,6 +9,7 @@
 #include "FactoryWidget.h"
 #include "NetworkManager.h"
 #include "GuiSettingsWidget.h"
+#include "ScreenInversion.h"
 #include "TestWizard.h"
 #include "KovanSerialBridge.h"
 #include "CursorManager.h"
@@ -21,6 +22,7 @@
 #include <QSettings>
 #include <QStringList>
 #include <QTranslator>
+#include <QTimer>
 
 int main(int argc, char* argv[])
 { 
@@ -29,6 +31,30 @@ int main(int argc, char* argv[])
   QApplication::setApplicationName("botui");
   
 	QApplication app(argc, argv);
+	QString screenRecoveryError;
+	const bool screenRecovered = ScreenInversion::recoverPending(&screenRecoveryError);
+	if (!screenRecovered)
+		qWarning() << "Unable to recover pending screen inversion:" << screenRecoveryError;
+	QTimer screenSyncTimer;
+	screenSyncTimer.setInterval(2000);
+	QObject::connect(&screenSyncTimer, &QTimer::timeout, &app, [&screenSyncTimer]() {
+		QString error;
+		if (ScreenInversion::synchronizeConfiguredOutput(&error))
+			screenSyncTimer.stop();
+	});
+	QTimer screenRecoveryTimer;
+	screenRecoveryTimer.setInterval(2000);
+	QObject::connect(&screenRecoveryTimer, &QTimer::timeout, &app, [&screenRecoveryTimer, &screenSyncTimer]() {
+		QString error;
+		if (ScreenInversion::recoverPending(&error)) {
+			screenRecoveryTimer.stop();
+			screenSyncTimer.start();
+		}
+	});
+	if (!screenRecovered)
+		screenRecoveryTimer.start();
+	else
+		screenSyncTimer.start();
   
   QTranslator translator;
   const QString trFile = "botui_" + QSettings().value("locale", "en").toString().left(2);

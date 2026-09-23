@@ -59,6 +59,26 @@ displayed target within 15 seconds. If it is not confirmed, Botui restores the
 backup and reloads Labwc. The rollback timer runs inside Botui, so the backup
 may need to be restored manually if Botui exits during confirmation.
 
+## Screen inversion on Wayland
+
+The GUI Settings button toggles HDMI-A-1 between normal and 180° orientation.
+Botui updates both `~/.config/kanshi/config` and `config.init`. The device's
+touch input follows output rotation, so screen inversion leaves the TSC2007
+calibration in Labwc's `rc.xml` unchanged.
+
+If `config` is empty, `config.init` supplies the initial output profile. Kanshi
+and Labwc must already be running in the session, and `wlr-randr` must be
+installed. When Botui is started with `sudo`, it uses the invoking user's
+configuration directory and reloads that user's running Kanshi process.
+
+The new orientation takes effect immediately. Confirm it on screen within 15
+seconds or Botui restores the original files. The originals are saved as
+`config.invert.pending.bak`, `config.init.invert.pending.bak`, and
+`rc.xml.invert.pending.bak` beside
+their respective files. If Botui exits during confirmation, it retries recovery
+on its next launch until the Wayland session is ready. At startup Botui also
+reapplies the saved output orientation if another boot step left it different.
+
 # License
 
 Botui is released under the terms of the GPLv3. For more information, see the LICENSE file.

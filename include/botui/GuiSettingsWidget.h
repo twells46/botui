@@ -7,6 +7,7 @@ namespace Ui
 {
 	class GuiSettingsWidget;
 }
+class QShowEvent;
 
 class GuiSettingsWidget : public StandardWidget
 {
@@ -22,6 +23,7 @@ private slots:
 	
 private:
 	static void updateWidgets();
+	void showEvent(QShowEvent *event) override;
 	Ui::GuiSettingsWidget *ui;
 };
 
