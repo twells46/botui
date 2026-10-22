@@ -67,14 +67,18 @@ int main(int argc, char* argv[])
 	QDir::setCurrent(QApplication::applicationDirPath());
 	qmlRegisterType<BusyIndicator>("ZapBsComponents", 1, 0, "BusyIndicator");
 	
-	QFontDatabase::addApplicationFont(":/fonts/DejaVuSans-ExtraLight.ttf");
+	// const int sansFontId = QFontDatabase::addApplicationFont(":/fonts/DejaVuSans-ExtraLight.ttf");
+	// const QString sansStyle = "ExtraLight";
+	// To test regular DejaVu Sans, comment out the two lines above and uncomment these:
 	const int sansFontId = QFontDatabase::addApplicationFont(":/fonts/DejaVuSans.ttf");
+	const QString sansStyle = "Book";
 	QFontDatabase::addApplicationFont(":/fonts/DejaVuSansMono.ttf");
 
 	const QStringList sansFamilies = QFontDatabase::applicationFontFamilies(sansFontId);
 	if (!sansFamilies.isEmpty()) {
 		QFont appFont = QApplication::font();
 		appFont.setFamily(sansFamilies.constFirst());
+		appFont.setStyleName(sansStyle);
 		QApplication::setFont(appFont);
 	} else {
 		qWarning() << "Unable to load bundled DejaVu Sans font";
