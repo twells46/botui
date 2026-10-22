@@ -1,4 +1,8 @@
-FROM debian:13.6
+# Stages:
+#   toolchain  aarch64 cross toolchain, Qt 6 (arm64) and the KIPR libraries
+#   dev        toolchain + dev tools and agent CLIs (used by .devcontainer/)
+#   builder    the default target, used by the README's Docker build
+FROM debian:13.6 AS toolchain
 
 RUN dpkg --add-architecture arm64 \
     && apt update \
@@ -22,6 +26,38 @@ RUN wget 'https://github.com/twells46/libkar/releases/download/v1.0.1/libkar-1.0
     && sha256sum -c pkgs.CHECKSUM \
     && apt install ./libkar-1.0.1-Linux.deb ./pcompiler-1.0.1-Linux.deb ./kipr-1.2.4-Linux.deb \
     && rm libkar-1.0.1-Linux.deb pcompiler-1.0.1-Linux.deb kipr-1.2.4-Linux.deb pkgs.CHECKSUM
+
+
+FROM toolchain AS dev
+
+# gnupg: signing commits/tags inside the container
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bubblewrap ca-certificates curl fd-find fish fzf git gnupg jq openssh-client ripgrep wget \
+    && ln -s "$(command -v fdfind)" /usr/local/bin/fd \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid 1000 code \
+    && useradd --uid 1000 --gid 1000 --create-home --shell /usr/bin/fish code
+
+USER code
+# Agent state lives in named volumes; a new volume inherits this ownership.
+# CLAUDE_CONFIG_DIR also moves ~/.claude.json inside the volume.
+ENV CLAUDE_CONFIG_DIR=/home/code/.claude \
+    CODEX_HOME=/home/code/.codex \
+    PATH=/home/code/.local/bin:$PATH
+RUN mkdir -p "$CLAUDE_CONFIG_DIR" "$CODEX_HOME" \
+    && curl -fsSL https://claude.ai/install.sh | bash \
+    && claude --version \
+    # The Codex installer puts its package under CODEX_HOME; point it outside
+    # the volume so the binary stays in the image.
+    && curl -fsSL https://chatgpt.com/codex/install.sh \
+        | CODEX_HOME=/home/code/.local/share/codex CODEX_NON_INTERACTIVE=1 sh \
+    && codex --version
+
+
+# Keep this stage last: it is the default target for `docker build .`
+FROM toolchain AS builder
 
 RUN groupadd --gid 1000 kipr \
     && useradd --uid 1000 --gid 1000 kipr
